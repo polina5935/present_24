@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Подарок: Поле чудес с заданиями</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(145deg, #2b3b4e 0%, #1d2c3a 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #f0ede8;
+        }
+
+        .page {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(255,255,240,0.1);
+            backdrop-filter: blur(3px);
+            border-radius: 60px 60px 40px 40px;
+            padding: 20px 25px 35px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
+        }
+
+        .hidden-page {
+            display: none;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            text-shadow: 3px 3px 0 #1f2e3b;
+        }
+
+        h2 {
+            border-left: 8px solid #f5b042;
+            padding-left: 20px;
+            margin: 20px 0 15px;
+        }
+
+        .tasks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .task-card {
+            background: #fef9e6;
+            border-radius: 35px;
+            padding: 35px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 10px 0 #aa8c54;
+            color: #2e241f;
+        }
+
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 0 #aa8c54;
+        }
+
+        .task-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+
+        .task-title {
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin: 5px 0;
+        }
+
+        .task-status {
+            font-size: 0.85rem;
+            background: #e0cfb1;
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 50px;
+            margin-top: 8px;
+            font-weight: bold;
+        }
+
+        .task-status.solved {
+            background: #6fbf4c;
+            color: white;
+        }
+
+        .big-button {
+            display: block;
+            width: 80%;
+            max-width: 350px;
+            margin: 15px auto 0;
+            background: #f5b042;
+            border: none;
+            padding: 16px 20px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2e241f;
+            border-radius: 60px;
+            cursor: pointer;
+            text-align: center;
+            transition: 0.1s linear;
+            box-shadow: 0 8px 0 #9b5e1a;
+            font-family: inherit;
+        }
+
+        .big-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #9b5e1a;
+        }
+
+        .wheel-container {
+            text-align: center;
+        }
+
+        .wheel-img {
+            max-width: 90%;
+            max-height: 200px;
+            object-fit: contain;
+            background: #fff2db;
+            border-radius: 40px;
+            padding: 15px;
+            margin: 10px auto;
+            display: block;
+            box-shadow: 0 0 0 4px #efcd91;
+        }
+
+        .word-display {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+       .letter-card {
+            width: 70px;
+            height: 70px;
+            background: #1e3a8a;
+            border: 3px solid white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 0 #0f2a5c;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+
+        .letter-input-area {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 25px 0;
+        }
+
+        .letter-input-area input {
+            font-size: 2rem;
+            width: 80px;
+            text-align: center;
+            background: #fff4e0;
+            border: none;
+            border-radius: 30px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-family: monospace;
+            outline: none;
+        }
+
+        .guess-btn {
+            background: #3f8f6b;
+            color: white;
+            border: none;
+            font-size: 1.7rem;
+            padding: 0 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.1s;
+            box-shadow: 0 5px 0 #1e4a33;
+        }
+
+        .guess-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #1e4a33;
+        }
+
+        .back-btn {
+            background: #5a5a5a;
+            box-shadow: 0 5px 0 #2e2e2e;
+            margin-top: 25px;
+            font-size: 1.2rem;
+            width: auto;
+            display: inline-block;
+            padding: 10px 25px;
+        }
+
+        .message {
+            font-size: 1.2rem;
+            background: #000000aa;
+            padding: 8px;
+            border-radius: 40px;
+            margin-top: 15px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #fff4e6;
+            color: #2c2c2c;
+            max-width: 800px;
+            width: 90%;
+            padding: 30px 20px;
+            border-radius: 50px;
+            text-align: center;
+            box-shadow: 0 20px 30px black;
+        }
+
+        .modal-content button {
+            background: #f5b042;
+            border: none;
+            font-size: 1.4rem;
+            padding: 8px 18px;
+            border-radius: 60px;
+            margin-top: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .prize-img {
+            margin-top: 20px;
+            max-width: 90%;
+            border-radius: 40px;
+            box-shadow: 0 0 20px gold;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+        /* Стиль для надписи "КРУТИТЕ БАРАБАН" */
+        .wheel-container h2 {
+            font-size: 3.5rem;          /* очень большой размер */
+            font-family: 'Courier New', 'Impact', 'Arial Black', sans-serif;
+            letter-spacing: 8px;        /* увеличенный интервал между буквами */
+            text-transform: uppercase;
+            color: #ffd966;
+            text-shadow: 4px 4px 0 #b45309;
+            margin: 15px 0;
+            word-break: keep-all;
+            white-space: nowrap;
+            overflow-x: auto;
+            font-weight: bold;
+        }
+
+        /* Если экран маленький, уменьшаем размер */
+        @media (max-width: 700px) {
+            .wheel-container h2 {
+                font-size: 2rem;
+                letter-spacing: 4px;
+                white-space: normal;
+            }
+        }
+        /* Убираем жёлтую полоску слева у заголовка на странице Поле чудес */
+        .wheel-container h2 {
+            border-left: none;
+            padding-left: 0;
+        }
+        /* Стили для подписи и увеличенного поля ввода */
+        .letter-input-wrapper {
+            margin: 25px 0;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ffd966;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 0 #9b5e1a;
+        }
+
+        /* Увеличиваем поле ввода */
+        .letter-input-area input {
+            font-size: 2.8rem !important;
+            width: 130px !important;
+            height: 80px !important;
+            text-align: center;
+            background: #fff4e0;
+            border: none;
+            border-radius: 40px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-family: monospace;
+            outline: none;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* Увеличиваем кнопку */
+        .letter-input-area .guess-btn {
+            font-size: 2rem !important;
+            padding: 0 40px !important;
+            height: 80px !important;
+        }
+        /* Стили для картинок городов */
+        .cities-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            margin: 20px 0;
+        }
+        .city-card {
+            text-align: center;
+            width: 180px;   /* было 120px */
+        }
+        .city-img {
+            width: 100%;
+            height: 140px;  /* было 100px */
+            object-fit: cover;
+            border-radius: 20px;
+            border: 3px solid #f5b042;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+        .city-name {
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #2e241f;
+        }
+        .task-question {
+            font-size: 1.4rem;
+            margin: 20px 0;
+            color: #2e241f;
+        }
+        .city-name {
+            margin-top: 8px;
+            font-weight: bold;
+            color: #2e241f;
+        }
+        .task-question {
+            font-size: 1.3rem;
+            margin: 15px 0;
+            color: #2e241f;
+        }
+        .task-answer-input {
+            font-size: 1.5rem;
+            width: 80px;
+            text-align: center;
+            padding: 5px;
+            margin: 10px;
+        }
+        /* Стили для кроссворда с картинками */
+    .crossword-visual {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 30px;
+        margin: 20px 0;
+    }
+    .center-image {
+        flex: 0 0 250px;
+        text-align: center;
+    }
+    .center-image img {
+        width: 100%;
+        max-width: 280px;
+        border-radius: 20px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.4);
+        border: 3px solid #f5b042;
+    }
+    .hints-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .hint-row {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+    }
+    .hint-item {
+        text-align: center;
+        width: 150px;
+    }
+    .hint-item img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 16px;
+        border: 2px solid #c8102e;
+        background: white;
+        padding: 5px;
+    }
+    .hint-item span {
+        display: block;
+        margin-top: 8px;
+        font-weight: bold;
+        color: #2e241f;
+        font-size: 0.9rem;
+    }
+    @media (max-width: 700px) {
+        .center-image { flex-basis: 180px; }
+        .hint-item { width: 90px; }
+        .hint-item img { height: 80px; }
+    }
+    .hint-item video {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 16px;
+        border: 2px solid #c8102e;
+        background: black;
+    }
+        /* Стили для третьего задания (футбольные клубы) */
+    .football-clubs {
+        margin: 20px 0;
+    }
+    .clubs-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 25px;
+    }
+    .club-card {
+        text-align: center;
+        width: 350px;
+    }
+    .club-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: contain;   /* ← меняем */
+        background: white;
+        border-radius: 20px;
+        border: 3px solid #c8102e;
+    }
+    .club-name {
+        margin-top: 10px;
+        font-size: 1.3rem;
+        font-weight: bold;
+        letter-spacing: 4px;
+        color: #2e241f;
+        background: transparent;
+        padding: 0;
+        border-radius: 0;
+    }
+    @media (max-width: 700px) {
+        .club-card { width: 140px; }
+        .club-card img { height: 110px; }
+    }
+    /* Четвертое задание: 7 видео */
+    .videos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+    }
+    .video-card {
+        background: #1e2a32;
+        border-radius: 20px;
+        padding: 10px;
+        text-align: center;
+    }
+    .video-card video {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+        border-radius: 16px;
+        background: black;
+    }
+    .video-question {
+        margin-top: 10px;
+        font-weight: bold;
+        color: #ffd966;
+        font-size: 0.9rem;
+    }
+    .task-header {
+        background: #c8102e;
+        padding: 10px;
+        border-radius: 40px;
+        color: white;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    .task-icon-img {
+        width: auto;
+        height: 6rem;
+        display: block;
+        margin: 0 auto;
+    }
+    /* Пятое задание: аудиоплееры */
+    .songs-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin: 20px 0;
+    }
+    .song-card {
+        background: #1e2a32;
+        border-radius: 30px;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    .song-card audio {
+        flex: 2;
+        min-width: 200px;
+    }
+    .song-question {
+        flex: 3;
+        font-weight: bold;
+        color: #ffd966;
+        font-size: 1rem;
+    }
+    @media (max-width: 600px) {
+        .song-card { flex-direction: column; align-items: stretch; }
+        .song-card audio { width: 100%; }
+    }
+    /* Шестое задание: одна картинка */
+    /* Шестое задание: одна картинка без белых полей */
+    .single-image {
+        text-align: center;
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        line-height: 0;
+    }
+    .single-image img {
+        max-width: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        border-radius: 30px;
+        border: 4px solid #c8102e;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        display: block;
+        margin: 0 auto;
+        background: transparent; /* убираем белый фон */
+    }
+    /* Дополнительно обернём в div с тёмным фоном, если надо скрыть остатки */
+    .image-wrapper {
+        background: #1e2a32; /* цвет фона такой же, как у модалки или как у хоккейной темы */
+        border-radius: 34px;
+        padding: 4px;
+        display: inline-block;
+    }
+        /* Седьмое задание */
+    .soccer-layout {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin: 20px 0;
+    }
+    .soccer-field {
+        flex: 1;
+        min-width: 450px;
+        text-align: center;
+    }
+    .soccer-field img {
+        width: 100%;
+        max-width: 400px;
+        border-radius: 20px;
+        border: 3px solid #c8102e;
+    }
+    .soccer-buttons {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        justify-content: center;
+    }
+    .soccer-buttons button {
+        background: #1e3a8a;
+        color: white;
+        border: none;
+        padding: 12px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        border-radius: 40px;
+        cursor: pointer;
+        transition: 0.1s;
+        box-shadow: 0 4px 0 #0f2a5c;
+    }
+    .soccer-buttons button:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #0f2a5c;
+    }
+    /* Галерея фотографий (всплывающее окно) */
+    .photo-gallery {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #fff4e6;
+        padding: 20px;
+        border-radius: 30px;
+        z-index: 2000;
+        max-width: 90%;
+        max-height: 90%;
+        overflow-y: auto;
+        box-shadow: 0 0 0 1000px rgba(0,0,0,0.7);
+    }
+    .photo-gallery h3 {
+        margin-top: 0;
+        color: #c8102e;
+    }
+    .gallery-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+    }
+    .gallery-grid img {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 20px;
+        border: 2px solid #c8102e;
+    }
+    .close-gallery {
+        display: block;
+        margin: 15px auto 0;
+        background: #c8102e;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 40px;
+        cursor: pointer;
+    }
+    </style>
+</head>
+<body>
+
+<!-- СТАРТОВАЯ СТРАНИЦА -->
+<div id="start-page" class="page">
+    <h1> СЮРПРИЗ ДЛЯ ТЕБЯ </h1>
+    <p style="text-align:center;">Выполни 7 заланий! Каждое из них даст тебе одну букву! </p>
+    
+    <div class="tasks-grid" id="tasks-grid"></div>
+
+    <button id="go-to-wheel-btn" class="big-button">🎡 ВВЕСТИ БУКВУ 🎡</button>
+    <footer>Кликни на задание — оно откроется, но даже если не решать, буквы можно вводить сколько угодно.</footer>
+</div>
+
+<!-- СТРАНИЦА ПОЛЯ ЧУДЕС (без лимита попыток) -->
+<div id="wheel-page" class="page hidden-page">
+    <div class="wheel-container">
+        <h2>К   Р  У  Т  И  Т  Е       Б  А  Р  А  Б  А  Н</h2>
+        <img id="wheel-image" class="wheel-img" src="zm11g6ff6wcymqwuk16ghsiefre6pjcd.jpg" alt="КРУТИТЕ БАРАБАН">
+        <div class="word-display" id="word-mask"></div>
+        
+        <div class="letter-input-wrapper">
+            <label for="letter-input" class="input-label"> Введи букву!</label>
+            <div class="letter-input-area">
+                <input type="text" id="letter-input" maxlength="1" placeholder="?" autocomplete="off">
+                <button id="guess-letter-btn" class="guess-btn">УГАДАТЬ</button>
+            </div>
+        </div>
+<div id="wheel-message" class="message"></div>
+        <button id="back-to-tasks" class="big-button back-btn">⬅ ЗАДАНИЯ</button>
+    </div>
+</div>
+
+<!-- Модальное окно для заданий (пока заглушка) -->
+<div id="task-modal" class="modal">
+    <div class="modal-content">
+        <div style="font-size: 3rem;">📜</div>
+        <h3 id="modal-task-title">Задание №1</h3>
+        <div id="modal-task-text"></div>
+    </div>
+</div>
+
+<script>
+    // ========== НАСТРОЙКИ ==========
+    const SECRET_WORD = "БУЛОЧКА".toUpperCase();   // загаданное слово
+    const FINAL_PRIZE_IMG = "qr.png";; // замените на свою картинку с QR-кодом
+
+    let tasksSolved = [false, false, false, false, false, false, false]; // просто для отметки
+    let guessedLetters = [];      // уже открытые буквы
+    let wordArray = SECRET_WORD.split('');
+    let displayMask = SECRET_WORD.split('').map(() => '_');
+    let gameFinished = false;
+
+    // DOM элементы
+    const startPage = document.getElementById('start-page');
+    const wheelPage = document.getElementById('wheel-page');
+    const tasksGrid = document.getElementById('tasks-grid');
+    const goToWheelBtn = document.getElementById('go-to-wheel-btn');
+    const backToTasksBtn = document.getElementById('back-to-tasks');
+    const wordMaskSpan = document.getElementById('word-mask');
+    const letterInput = document.getElementById('letter-input');
+    const guessBtn = document.getElementById('guess-letter-btn');
+    const wheelMessage = document.getElementById('wheel-message');
+    const wheelImage = document.getElementById('wheel-image');
+
+    // Модалка
+    const modal = document.getElementById('task-modal');
+    const modalTitle = document.getElementById('modal-task-title');
+    const modalText = document.getElementById('modal-task-text');
+    const solveBtn = document.getElementById('solve-task-btn');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    let currentTaskIndex = null;
+
+    // Обновить маску слова на экране
+    function updateWordDisplay() {
+        let display = displayMask.join(' ');
+        wordMaskSpan.innerText = display;
+        if (!gameFinished && !displayMask.includes('_')) {
+            gameFinished = true;
+            wheelMessage.innerHTML = "🎉 Ура! С днем рождения, любимый Матвей! 🎉";
+            const prizeHtml = `<img src="${FINAL_PRIZE_IMG}" alt="QR-сюрприз" class="prize-img"><p style="margin-top:10px;"></p>`;
+            wheelMessage.innerHTML += `<br>${prizeHtml}`;
+            guessBtn.disabled = true;
+            letterInput.disabled = true;
+        }
+    }
+
+    function rebuildMask() {
+    const container = document.getElementById('word-mask');
+    container.innerHTML = '';
+    for (let i = 0; i < wordArray.length; i++) {
+        const letter = wordArray[i];
+        const isGuessed = guessedLetters.includes(letter);
+        const card = document.createElement('div');
+        card.className = 'letter-card';
+        if (isGuessed) {
+            card.textContent = letter;
+            card.classList.add('flip');
+        } else {
+            card.textContent = '?';
+        }
+        container.appendChild(card);
+    }
+    // Проверка на полное отгадывание (как было раньше)
+    if (!gameFinished && !wordArray.some(letter => !guessedLetters.includes(letter))) {
+        gameFinished = true;
+        const wheelMessage = document.getElementById('wheel-message');
+        wheelMessage.innerHTML = "🎉Ура! С днем рождения, любимый Матвей! 🎉";
+        const prizeHtml = `<img src="${FINAL_PRIZE_IMG}" alt="QR-сюрприз" class="prize-img"><p style="margin-top:10px;"></p>`;
+        wheelMessage.innerHTML += `<br>${prizeHtml}`;
+        document.getElementById('guess-letter-btn').disabled = true;
+        document.getElementById('letter-input').disabled = true;
+    }
+    }       
+
+    // Угадывание буквы — БЕЗ ОГРАНИЧЕНИЙ
+    function guessLetter() {
+    if (gameFinished) {
+        wheelMessage.innerText = "Игра уже завершена! Смотри QR-код :)";
+        return;
+    }
+    let rawLetter = letterInput.value.trim();
+    if (rawLetter.length !== 1) {
+        wheelMessage.innerText = "";
+        return;
+    }
+    
+    // Приводим к верхнему регистру
+    let letter = rawLetter.toUpperCase();
+    
+    // Таблица соответствия английских букв русским (на случай, если забыли переключить раскладку)
+    const engToRus = {
+        'A':'А', 'B':'В', 'C':'С', 'E':'Е', 'H':'Н', 'K':'К', 'M':'М', 'O':'О', 
+        'P':'Р', 'T':'Т', 'X':'Х', 'Y':'У', 'I':'И', 'F':'Ф', 'U':'У', 'V':'В'
+    };
+    if (engToRus[letter]) {
+        letter = engToRus[letter];
+    }
+    
+    // Дополнительная проверка: если символ не русская буква (и не стала русской после замены) — ошибка
+    if (!/^[А-ЯЁ]$/i.test(letter)) {
+        wheelMessage.innerText = "Можно вводить только буквы (русские или похожие английские).";
+        return;
+    }
+    
+    // Если буква уже открыта
+    if (guessedLetters.includes(letter)) {
+        wheelMessage.innerText = `Буква "${letter}" уже открыта! Попробуй другую.`;
+        letterInput.value = '';
+        return;
+    }
+    
+    // Проверка наличия в слове
+    if (wordArray.includes(letter)) {
+        guessedLetters.push(letter);
+        rebuildMask();
+        // Не перезаписываем сообщение, если игра уже завершена (QR-код показан)
+        if (!gameFinished) {
+            wheelMessage.innerText = `✅ Есть буква "${letter}"! Отлично!`;
+        }
+    } else {
+        wheelMessage.innerText = `❌ Нет буквы "${letter}". Попробуй другую. (Попытки не ограничены)`;
+    }
+    letterInput.value = '';
+}
+
+    // ========== ЗАДАНИЯ ==========
+    function renderTasks() {
+        tasksGrid.innerHTML = '';
+        for (let i = 0; i < 7; i++) {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            const taskNum = i+1;
+            card.innerHTML = `
+                <div class="task-icon">${getTaskIcon(i)}</div>
+                <div class="task-title">Задание ${taskNum}</div>
+            `;
+            card.addEventListener('click', (function(idx) {
+                return function() { openTaskModal(idx); };
+            })(i));
+            tasksGrid.appendChild(card);
+        }
+    }
+
+    function getTaskIcon(index) {
+    const penguinImages = [
+        'penguin1.png',
+        'penguin2.png',
+        'penguin3.png',
+        'penguin4.png',
+        'penguin5.png',
+        'penguin6.png',
+        'penguin7.png'
+    ];
+    return `<img src="${penguinImages[index]}" class="task-icon-img" alt="пингвин">`;}
+
+   function openTaskModal(taskIndex) {
+        currentTaskIndex = taskIndex;
+        modalTitle.innerText = `Задание №${taskIndex+1}`;
+        
+        if (taskIndex === 0) {
+            modalText.innerHTML = `
+                <div class="cities-container">
+                    <div class="city-card"><img class="city-img" src="osaka.png" alt=""><div class="city-name"></div></div>
+                    <div class="city-card"><img class="city-img" src="new_york.png" alt=""><div class="city-name"></div></div>
+                    <div class="city-card"><img class="city-img" src="sochi.png" alt=""><div class="city-name"></div></div>
+                    <div class="city-card"><img class="city-img" src="moscow.png" alt=""><div class="city-name"></div></div>
+                    <div class="city-card"><img class="city-img" src="oslo.png" alt=""><div class="city-name"></div></div>
+                </div>
+                <div class="task-question">Во всех этих городах есть одна и та же буква. Какая?<br>Подумай, потом введи её в «Поле чудес».</div>
+                <button id="closeModalButton" class="modal-submit-btn" style="background:#c8102e; margin-top:15px;">✖ Закрыть</button>
+            `;
+            // Добавляем обработчик для этой кнопки
+            const closeBtn = document.getElementById('closeModalButton');
+            if (closeBtn) {
+                closeBtn.onclick = function() {
+                    modal.style.display = 'none';
+                    currentTaskIndex = null;
+                };
+            }
+        } else if (taskIndex === 1) {
+    modalText.innerHTML = `
+        <div class="crossword-visual">
+            <div class="center-image">
+                <img src="crossword.png" alt="Кроссворд" style="width:100%; max-width:280px;">
+                <div style="margin-top:8px; font-weight:bold; color:#1e3a8a;">Кроссворд</div>
+            </div>
+            <div class="hints-grid">
+                <div class="hint-row">
+                    <div class="hint-item"><img src="promach.png" alt=""><span>Подсказка 1. Что сейчас будет?</span></div>
+                    <div class="hint-item"><img src="christo.png" alt=""><span>Подсказка 2. Кто это?</span></div>
+                </div>
+                <div class="hint-row">
+                    <div class="hint-item">
+                        <video controls width="100%" height="100" style="object-fit: cover;">
+                            <source src="otskok.mov" type="video/mp4">
+                            Ваш браузер не поддерживает видео.
+                        </video>
+                        <span>Подсказка 3. Что проверяет Фонсека?</span>
+                    </div>
+                    <div class="hint-item"><img src="katok.png" alt=""><span>Подсказка 4. Твое любимое покрытие</span></div>
+                </div>
+                <div class="hint-row">
+                    <div class="hint-item"><img src="kloze.png" alt=""><span>Подсказка 5. А это кто?</span></div>
+                    <div class="hint-item"><img src="eley.png" alt=""><span>Подсказка 6. На эмблеме много ИХ!</span></div>
+                </div>
+            </div>
+        </div>
+        <button id="closeModalButton2" class="modal-submit-btn" style="background:#c8102e; margin-top:15px;">✖ Закрыть</button>
+    `;
+
+    const closeBtn2 = document.getElementById('closeModalButton2');
+    if (closeBtn2) closeBtn2.onclick = () => { modal.style.display = 'none'; currentTaskIndex = null; };}
+    
+    else if (taskIndex === 2) {
+    modalText.innerHTML = `
+        <div class="football-clubs">
+            <div class="clubs-grid">
+                <div class="club-card">
+                    <img src="vuverherpton7071.png" alt="Клуб 1">
+                    <div class="club-name">Таблица чемпионата Англии 1970/1971</div>
+                </div>
+                <div class="club-card">
+                    <img src="metallurg2021.png" alt="Клуб 2">
+                    <div class="club-name">Восточная конференция КХЛ 2021</div>
+                </div>
+                <div class="club-card">
+                    <img src="yuventus2004.png" alt="Клуб 3">
+                    <div class="club-name">Таблица Серии А 2004</div>
+                </div>
+                <div class="club-card">
+                    <img src="urugvay1950.png" alt="Клуб 4">
+                    <div class="club-name">Чемпионат мира 1950</div>
+                </div>
+            </div>
+        </div>
+        <div class="task-question">Какая буква есть во всех названиях этих футбольных клубов?<br></div>
+        <button id="closeModalButton3" class="modal-submit-btn" style="background:#c8102e; margin-top:15px;">✖ Закрыть</button>
+    `;
+    const closeBtn = document.getElementById('closeModalButton3');
+    if (closeBtn) closeBtn.onclick = () => { modal.style.display = 'none'; currentTaskIndex = null; };}
+    else if (taskIndex === 3) {
+    modalText.innerHTML = `
+        <div class="task-header">
+            🎥 Гол — 1 | Красная карточка — 1 | Мяч в корте — 1 🎥
+        </div>
+        <div class="task-header">
+            🎥 Нет гола — 0 | Желтая карточка — 0 | Мяч в ауте — 0 🎥
+        </div>
+        <div class="videos-grid">
+            <div class="video-card">
+                <video controls src="gol1.mov"></video>
+                <div class="video-question">Будет ли гол?</div>
+            </div>
+            <div class="video-card">
+                <video controls src="red_card.mov"></video>
+                <div class="video-question">Какая карточка?</div>
+            </div>
+            <div class="video-card">
+                <video controls src="yellow_card1.mov"></video>
+                <div class="video-question">А тут?</div>
+            </div>
+            <div class="video-card">
+                <video controls src="out1.mov"></video>
+                <div class="video-question">Попала или аут?</div>
+            </div>
+            <div class="video-card">
+                <video controls src="gol2.mov"></video>
+                <div class="video-question">А тут будет гол?</div>
+            </div>
+            <div class="video-card">
+                <video controls src="yellow_card2.mov"></video>
+                <div class="video-question">А тут какая карточка?</div>
+            </div>
+            <div class="video-card">
+                <video controls src="out2.mov"></video>
+                <div class="video-question">А тут попала?</div>
+            </div>
+        </div>
+        <div class="task-question">На каждой картинке 1 или 0. Составь из них число, гланая это твоя буква!</div>
+        <button id="closeModalButton4" class="modal-submit-btn" style="background:#c8102e; margin-top:15px;">✖ Закрыть</button>
+    `;
+    const closeBtn = document.getElementById('closeModalButton4');
+    if (closeBtn) closeBtn.onclick = () => { modal.style.display = 'none'; currentTaskIndex = null; };}
+    else if (taskIndex === 4) {
+    modalText.innerHTML = `
+        <div class="task-header">
+            🎵 Угадай названия 4 песен 🎵
+        </div>
+        <div class="songs-grid">
+            <div class="song-card">
+                <audio controls src="strel.mp3"></audio>
+                <div class="song-question">Песня №1 – как называется?</div>
+            </div>
+            <div class="song-card">
+                <audio controls src="cubalibre.mp3"></audio>
+                <div class="song-question">Песня №2 – а эта?</div>
+            </div>
+            <div class="song-card">
+                <audio controls src="brilliant.mp3"></audio>
+                <div class="song-question">Песня №3 – а такая?</div>
+            </div>
+            <div class="song-card">
+                <audio controls src="shinshil.mp3"></audio>
+                <div class="song-question">Песня №4 – атакую?</div>
+            </div>
+        </div>
+        <div class="task-question">Послушай песни, во всех них песнях есть одна буква!</div>
+        <button id="closeModalButton5" class="modal-submit-btn" style="background:#c8102e; margin-top:15px;">✖ Закрыть</button>
+    `;
+    const closeBtn = document.getElementById('closeModalButton5');
+    if (closeBtn) closeBtn.onclick = () => { modal.style.display = 'none'; currentTaskIndex = null; };}
+    else if (taskIndex === 5) {
+    modalText.innerHTML = `
+        <div class="single-image">
+            <div class="image-wrapper">
+                <img src="ch.png" alt="Какая буква объединяет этих людей?">
+            </div>
+        </div>
+        <div class="task-question">Ну что уже понял что за слово?)</div>
+        <button id="closeModalButton6" class="modal-submit-btn" style="background:#c8102e; margin-top:15px;">✖ Закрыть</button>
+    `;
+    const closeBtn = document.getElementById('closeModalButton6');
+    if (closeBtn) closeBtn.onclick = () => { modal.style.display = 'none'; currentTaskIndex = null; };}
+    else if (taskIndex === 6) {
+    modalText.innerHTML = `
+        <div class="soccer-layout">
+            <div class="soccer-field">
+                <img src="pole.png" alt="Футбольное поле">
+                <div style="margin-top:8px;">Схема главного тренера ФК ChitagoBulls Козлова М.Д.</div>
+            </div>
+            <div class="soccer-buttons">
+                <button id="showForwards">⚽ Нападающие </button>
+                <button id="showMidfielders">⚽ Полузащитники </button>
+                <button id="showDefenders">⚽ Защитники </button>
+                <button id="ShowGoalkeepers">🧤 Вратари </button>
+            </div>
+        </div>
+        <div class="task-question">Собери свою команду! Что у них общего?</div>
+        <button id="closeModalButton7" class="modal-submit-btn" style="background:#c8102e; margin-top:15px;">✖ Закрыть</button>
+    `;
+
+    // Функция показа галереи
+    function showPhotoGallery(title, photos) {
+        const gallery = document.createElement('div');
+        gallery.className = 'photo-gallery';
+        gallery.innerHTML = `
+            <h3>${title}</h3>
+            <div class="gallery-grid">
+                ${photos.map(src => `<img src="${src}" alt="photo">`).join('')}
+            </div>
+            <button class="close-gallery">Закрыть</button>
+        `;
+        document.body.appendChild(gallery);
+        gallery.querySelector('.close-gallery').onclick = () => gallery.remove();
+    }
+
+    // Пути к фотографиям (замените на свои)
+    const forwards = ['ba.png', 'berbatov.png', 'bautista.png', 'birhoff.png', 'basten.png'];
+    const midfielders = ['backhem.png', 'barella.png', 'balack.png', 'belinge.png', 'bentakur.png'];
+    const defenders = ['bosingva.png', 'bremer.png', 'bekkenbauer.png', 'bastoni.png', 'belierin.png'];
+    const goalkeepers = ['begovich.png', 'buffon.png'];
+
+    document.getElementById('showForwards')?.addEventListener('click', () => showPhotoGallery('⭐ Нападающие', forwards));
+    document.getElementById('showMidfielders')?.addEventListener('click', () => showPhotoGallery('⭐ Полузащитники', midfielders));
+    document.getElementById('showDefenders')?.addEventListener('click', () => showPhotoGallery('⭐ Защитники', defenders));
+    document.getElementById('ShowGoalkeepers')?.addEventListener('click', () => showPhotoGallery('🧤 Вратари', goalkeepers));
+
+    const closeBtn = document.getElementById('closeModalButton7');
+    if (closeBtn) closeBtn.onclick = () => { modal.style.display = 'none'; currentTaskIndex = null; };}
+    else {
+    // Задания 3,4,5,6,7 (заглушка)
+    modalText.innerHTML = `
+            <div style="padding: 20px;">
+                <div style="font-size: 2rem;">🏒</div>
+                <div class="task-question">Здесь будет следующее задание. Скоро появится!</div>
+                <button id="closeModalButton" class="modal-submit-btn" style="background:#c8102e; margin-top:15px;">✖ Закрыть</button>
+            </div>
+        `;
+        const closeBtn = document.getElementById('closeModalButton');
+        if (closeBtn) closeBtn.onclick = () => {
+            modal.style.display = 'none';
+            currentTaskIndex = null;
+        };
+    }
+
+        modal.style.display = 'flex';
+    }
+
+    // Переключение страниц
+    function showStartPage() {
+        startPage.classList.remove('hidden-page');
+        wheelPage.classList.add('hidden-page');
+        renderTasks();
+    }
+
+    function showWheelPage() {
+        startPage.classList.add('hidden-page');
+        wheelPage.classList.remove('hidden-page');
+        rebuildMask();
+        wheelMessage.innerText = "Введи любую букву! Попытки не ограничены.";
+    }
+
+    // Инициализация
+    function init() {
+        renderTasks();
+        updateWordDisplay();
+        
+        goToWheelBtn.addEventListener('click', showWheelPage);
+        backToTasksBtn.addEventListener('click', showStartPage);
+        guessBtn.addEventListener('click', guessLetter);
+        letterInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') guessLetter();
+        });
+        
+        //solveBtn.addEventListener('click', completeCurrentTask);
+        closeModalBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+            currentTaskIndex = null;
+        });
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                currentTaskIndex = null;
+            }
+        });
+    }
+    
+    init();
+</script>
+</body>
+</html>
